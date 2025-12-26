@@ -80,6 +80,7 @@ class LoadingScreen:
         self.frame.destroy()
 
 # --- GRAPHICS ENGINE ---
+# --- GRAPHICS ENGINE ---
 class TextureManager:
     # We cache images so we don't download the same "Zombie" 50 times
     cache = {}
@@ -97,7 +98,9 @@ class TextureManager:
         
         try:
             print(f"Generating Graphics for: {keyword}...")
-            response = requests.get(url, timeout=5) # 5s timeout so game doesn't freeze
+            # --- FIX IS HERE: CHANGED TIMEOUT TO 20 SECONDS ---
+            response = requests.get(url, timeout=20) 
+            # --------------------------------------------------
             img_data = response.content
             
             # Convert raw bytes to a Tkinter-friendly image
@@ -110,7 +113,7 @@ class TextureManager:
             return tk_img
         except Exception as e:
             print(f"Graphics Error: {e}")
-            return None # If it fails, we will just draw a circle
+            return None # If it fails, the game will just draw a colored shape
 # --- AUDIO ENGINE SETUP ---
 try:
     import winsound
@@ -201,18 +204,28 @@ class AudioEngine(threading.Thread):
         self.running = False
         
 # --- NLP ENGINE WITH GEMINI INTEGRATION (FIXED) ---
+# --- NLP ENGINE WITH GEMINI INTEGRATION (SECURE) ---
 class GeminiBrain:
     def __init__(self):
-        # OLD LINE (DELETE THIS):
-        # self.API_KEY = "AIzaSy..." 
-
-        # NEW LINE (SECURE):
+        # 1. Default to False (Safe Mode)
+        self.active = False 
+        
+        # 2. Try to load key from .env
         self.API_KEY = os.getenv("GEMINI_API_KEY")
 
         if not self.API_KEY:
             print("CRITICAL ERROR: API Key not found. Check your .env file!")
-            self.active = False
             return
+
+        try:
+            # 3. Initialize Client
+            self.client = genai.Client(api_key=self.API_KEY)
+            self.active = True
+            print("AI Engine: Active (Gemini 2.5 Flash)")
+            
+        except Exception as e:
+            print(f"AI Connection Error: {e}")
+            self.active = False
 
     def analyze(self, text):
         if not self.active:
@@ -233,8 +246,6 @@ class GeminiBrain:
         """
         
         try:
-            # 1. Use the new 'gemini-2.5-flash' model you found
-            # 2. Force JSON response for perfect game data
             response = self.client.models.generate_content(
                 model="gemini-2.5-flash", 
                 contents=prompt,
@@ -243,7 +254,6 @@ class GeminiBrain:
                 )
             )
             
-            # The new SDK returns a rich object, we want the text
             if response.text:
                 return json.loads(response.text)
             return None
@@ -251,46 +261,6 @@ class GeminiBrain:
         except Exception as e:
             print(f"Parsing Error: {e}")
             return None
-# --- RESULTS SCREEN ---
-class ResultsScreen:
-    def __init__(self, parent, theme, score, mode, high_score, is_new_record, on_replay, on_menu):
-        self.parent = parent
-        self.frame = tk.Frame(parent, bg=theme["bg"])
-        self.frame.pack(expand=True, fill="both", padx=20, pady=20)
-        
-        # Header
-        tk.Label(self.frame, text="ASSESSMENT COMPLETE", bg=theme["bg"], fg=theme["fg"], font=("Courier", 20, "bold")).pack(pady=(20, 10))
-        
-        # Grade Logic
-        self.grade = "C"
-        if mode == "SHOOTER":
-            if score > 20: self.grade = "S"
-            elif score > 15: self.grade = "A"
-            elif score > 10: self.grade = "B"
-        # (Simplified logic for brevity, you can keep your old complex logic if you want)
-        
-        # Big Grade Display
-        grade_color = theme["safe"] if self.grade in ["S", "A"] else theme["accent"]
-        tk.Label(self.frame, text=self.grade, bg=theme["bg"], fg=grade_color, font=("Segoe UI", 72, "bold")).pack()
-        
-        # --- NEW: HIGH SCORE DISPLAY ---
-        score_color = theme["fg"]
-        if is_new_record:
-            score_color = "#00ff00" # Bright Green for new record
-            tk.Label(self.frame, text="★ NEW RECORD! ★", bg=theme["bg"], fg=score_color, font=("Segoe UI", 12, "bold")).pack()
-            
-        score_text = f"Score: {score:.1f}  |  Best: {high_score:.1f}"
-        tk.Label(self.frame, text=score_text, bg=theme["bg"], fg=score_color, font=("Segoe UI", 16)).pack(pady=5)
-        # -------------------------------
-
-        # Buttons
-        btn_frame = tk.Frame(self.frame, bg=theme["bg"])
-        btn_frame.pack(pady=40)
-        tk.Button(btn_frame, text="REPLAY", command=on_replay, bg=theme["panel"], fg=theme["fg"], width=15).pack(side="left", padx=10)
-        tk.Button(btn_frame, text="NEW SCENARIO", command=on_menu, bg=theme["accent"], fg="white", width=15).pack(side="left", padx=10)
-
-    def destroy(self):
-        self.frame.destroy()
 # --- PARTICLE SYSTEM ---
 class Particle:
     def __init__(self, canvas, x, y, color):
@@ -856,6 +826,52 @@ class ConnectorGame:
     def destroy(self):
         self.running = False
         self.frame.destroy()
+
+# --- RESULTS SCREEN ---
+class ResultsScreen:
+    def __init__(self, parent, theme, score, mode, high_score, is_new_record, on_replay, on_menu):
+        self.parent = parent
+        self.frame = tk.Frame(parent, bg=theme["bg"])
+        self.frame.pack(expand=True, fill="both", padx=20, pady=20)
+        
+        # Header
+        tk.Label(self.frame, text="ASSESSMENT COMPLETE", bg=theme["bg"], fg=theme["fg"], font=("Courier", 20, "bold")).pack(pady=(20, 10))
+        
+        # Grade Logic
+        self.grade = "C"
+        if mode == "SHOOTER":
+            if score > 20: self.grade = "S"
+            elif score > 15: self.grade = "A"
+            elif score > 10: self.grade = "B"
+        elif mode == "DODGER":
+            if score > 25: self.grade = "S"
+            elif score > 20: self.grade = "A"
+            elif score > 10: self.grade = "B"
+        elif score > 15: # General fallback
+            self.grade = "A"
+        
+        # Big Grade Display
+        grade_color = theme["safe"] if self.grade in ["S", "A"] else theme["accent"]
+        tk.Label(self.frame, text=self.grade, bg=theme["bg"], fg=grade_color, font=("Segoe UI", 72, "bold")).pack()
+        
+        # High Score Display
+        score_color = theme["fg"]
+        if is_new_record:
+            score_color = "#00ff00" # Bright Green for new record
+            tk.Label(self.frame, text="★ NEW RECORD! ★", bg=theme["bg"], fg=score_color, font=("Segoe UI", 12, "bold")).pack()
+            
+        score_text = f"Score: {score:.1f}  |  Best: {high_score:.1f}"
+        tk.Label(self.frame, text=score_text, bg=theme["bg"], fg=score_color, font=("Segoe UI", 16)).pack(pady=5)
+
+        # Buttons
+        btn_frame = tk.Frame(self.frame, bg=theme["bg"])
+        btn_frame.pack(pady=40)
+        tk.Button(btn_frame, text="REPLAY", command=on_replay, bg=theme["panel"], fg=theme["fg"], width=15).pack(side="left", padx=10)
+        tk.Button(btn_frame, text="NEW SCENARIO", command=on_menu, bg=theme["accent"], fg="white", width=15).pack(side="left", padx=10)
+
+    def destroy(self):
+        self.frame.destroy()
+
 # --- MAIN APP ---
 class App:
     def __init__(self, root):
