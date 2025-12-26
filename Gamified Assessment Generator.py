@@ -201,7 +201,7 @@ class AudioEngine(threading.Thread):
 class GeminiBrain:
     def __init__(self):
         # PASTE YOUR KEY HERE
-        self.API_KEY = "PASTE_YOUR_KEY_HERE" 
+        self.API_KEY = "AIzaSyAyHs2D590v8v7mFsLL2irUyEkmYNaj9H0" 
         self.active = False
         
         try:
@@ -383,6 +383,7 @@ class ResourceGame:
 class SorterGame:
     def __init__(self, parent, theme, data, on_game_over):
         self.parent = parent
+        self.root = parent.winfo_toplevel() # <--- GET THE MAIN WINDOW
         self.theme = theme
         self.data = data
         self.on_game_over = on_game_over
@@ -394,6 +395,7 @@ class SorterGame:
         self.frame = tk.Frame(parent, bg=theme["bg"])
         self.frame.pack(expand=True, fill="both")
         
+        # UI Setup
         ea = data.get('ent_a', 'A')
         eb = data.get('ent_b', 'B')
         tk.Label(self.frame, text=f"SORT: {ea} (LEFT) vs {eb} (RIGHT)", bg=theme["bg"], fg=theme["fg"], font=("Courier", 14, "bold")).pack(pady=10)
@@ -404,8 +406,12 @@ class SorterGame:
         self.canvas.pack(fill="both", expand=True)
         self.canvas.create_line(300, 0, 300, 1000, fill="#555") 
 
-        self.parent.bind("<Left>", lambda e: self.sort("LEFT"))
-        self.parent.bind("<Right>", lambda e: self.sort("RIGHT"))
+        # --- KEY BINDING FIX ---
+        # Bind to the ROOT window so it works even if focus is elsewhere
+        self.root.bind("<Left>", lambda e: self.sort("LEFT"))
+        self.root.bind("<Right>", lambda e: self.sort("RIGHT"))
+        self.frame.focus_set() # Force focus to this game
+        # -----------------------
         
         self.spawn_loop()
         self.move_loop()
@@ -477,8 +483,9 @@ class SorterGame:
 
     def destroy(self):
         self.running = False
-        self.parent.unbind("<Left>")
-        self.parent.unbind("<Right>")
+        # Unbind from ROOT so keys don't break the menu later
+        self.root.unbind("<Left>")
+        self.root.unbind("<Right>")
         self.frame.destroy()
 
 #--- COLLECTOR GAME ---
