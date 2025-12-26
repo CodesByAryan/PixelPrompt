@@ -6,6 +6,9 @@ PixelPrompt is an experimental "Text-to-Game" engine built with Python. It uses 
 
 Simply type a sentence like *"The firewall blocks the hackers"* or *"The white blood cells hunt the virus,"* and the engine constructs a unique game mechanism, rules, and visuals on the fly.
 
+## 🏆 Hackathon Submission
+This project is an official submission for the **Global GenAI Hackathon** hosted by **Machine Learning Kolkata**.
+
 ## 🎮 Features
 * **Generative Gameplay:** The AI selects the best game mode (Shooter, Dodger, Sorter, Connector, etc.) based on the verb in your sentence.
 * **Real-Time Pixel Art:** Entities are generated instantly using AI image diffusion.
@@ -56,11 +59,18 @@ This application requires a **Google Gemini API Key**.
 * It uses the free tier of Gemini.
 * If you fork this project, **DO NOT** commit your API key to GitHub. Always use a `.env` file.
 
-## 👨‍💻 About the Developer
+## 👨‍💻 About Team Mambas
 **Aryan Biswas**
-* B.Tech Computer Science & Business Systems (CSBS)
-* 2nd Year Student @ Asansol Engineering College
-* Passionate about Generative AI, Python, and Game Development.
+* *Lead Developer & AI Architect*
+* Department of Computer Science & Business Systems (CSBS)
+
+**Nikhil Rai**
+* *Project Manager & Presenter*
+* Department of Computer Science & Business Systems (CSBS)
+
+**Ayush Kumar**
+* *Quality Assurance & Demo Lead*
+* Department of Information Technology (IT)
 
 ---
-*Created as a Generative AI experiment.*
+*Created at Asansol Engineering College, West Bengal.*
