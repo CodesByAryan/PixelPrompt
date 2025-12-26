@@ -203,19 +203,16 @@ class AudioEngine(threading.Thread):
 # --- NLP ENGINE WITH GEMINI INTEGRATION (FIXED) ---
 class GeminiBrain:
     def __init__(self):
-        # PASTE YOUR KEY HERE
-        self.API_KEY = "PASTE YOUR KEY HERE" 
-        self.active = False
-        
-        try:
-            # New SDK Initialization
-            self.client = genai.Client(api_key=self.API_KEY)
-            self.active = True
-            print("AI Engine: Active (Gemini 2.5 Flash)")
-            
-        except Exception as e:
-            print(f"AI Connection Error: {e}")
+        # OLD LINE (DELETE THIS):
+        # self.API_KEY = "AIzaSy..." 
+
+        # NEW LINE (SECURE):
+        self.API_KEY = os.getenv("GEMINI_API_KEY")
+
+        if not self.API_KEY:
+            print("CRITICAL ERROR: API Key not found. Check your .env file!")
             self.active = False
+            return
 
     def analyze(self, text):
         if not self.active:
