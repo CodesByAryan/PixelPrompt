@@ -13,7 +13,10 @@ import tkinter.ttk as ttk # For progress bar
 
 import json
 import os
+from dotenv import load_dotenv
 
+# Load the secret .env file
+load_dotenv()
 class ScoreManager:
     FILE = "scores.json"
 
