@@ -201,7 +201,7 @@ class AudioEngine(threading.Thread):
 class GeminiBrain:
     def __init__(self):
         # PASTE YOUR KEY HERE
-        self.API_KEY = "AIzaSyAyHs2D590v8v7mFsLL2irUyEkmYNaj9H0" 
+        self.API_KEY = "PASTE YOUR KEY HERE" 
         self.active = False
         
         try:
