@@ -33,13 +33,15 @@ Simply type a sentence like *"The firewall blocks the hackers"* or *"The white b
 1.  Clone this repository.
 2.  Install dependencies:
     ```bash
-    pip install google-genai requests pillow
+    pip install google-genai requests pillow python-dotenv
     ```
-3.  **Setup API Key:**
-    * Open `Gamified Assessment Generator.py`.
-    * Find the `GeminiBrain` class.
-    * Replace `self.API_KEY = "..."` with your own Google Gemini API Key.
-    * *(Note: The key is removed from this repo for security).*
+3.  **Setup API Key (Secure Method):**
+    * Create a file named `.env` in the project folder.
+    * Add your Google Gemini API key inside it like this:
+      ```ini
+      GEMINI_API_KEY=AIzaSyYourKeyHere...
+      ```
+    * *Note: The `.env` file is ignored by Git to keep your key safe.*
 4.  Run the script:
     ```bash
     python "Gamified Assessment Generator.py"
@@ -52,7 +54,7 @@ Simply type a sentence like *"The firewall blocks the hackers"* or *"The white b
 ## ⚠️ Important Note on API Usage
 This application requires a **Google Gemini API Key**.
 * It uses the free tier of Gemini.
-* If you fork this project, **DO NOT** commit your API key to GitHub. Use environment variables or a local config file.
+* If you fork this project, **DO NOT** commit your API key to GitHub. Always use a `.env` file.
 
 ## 👨‍💻 About the Developer
 **Aryan Biswas**
