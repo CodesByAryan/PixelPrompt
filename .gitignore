@@ -4,3 +4,4 @@ build/
 *.spec
 scores.json
 *.exe
+.env
